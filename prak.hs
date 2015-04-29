@@ -179,6 +179,7 @@ boardAutoSolution :: Board -> [Automaton] -> [[Int]]-> Board
 boardAutoSolution [] _ _ = []
 boardAutoSolution (x : xs) (y : ys) (z : zs)
 	|	length y == 1 = (replicate (length x) X) : boardAutoSolution xs ys zs
+	|	(&&) (notNullElem z == 1) (length x == last z) = (replicate (length x) O) : boardAutoSolution xs ys zs
 	|	(&&) (x == replicate (length x) No) (checkToEdit (length x) z) = x : boardAutoSolution xs ys zs
 	|	otherwise = (linechange x y 0) : boardAutoSolution xs ys zs
 
@@ -196,7 +197,7 @@ autoSolutionV (Field board numt1 numt2 tab1 tab2 r a b sc flag o) = (Field (tran
 startGame :: Field -> IO ()
 startGame startWorld = play 
 	  			(InWindow "JapanCross" (600, 600) (10, 10))
-    			red
+    			green
     			100
     			startWorld
     			renderer              
@@ -218,20 +219,20 @@ renderer (Field world table1 table2 _ _ (i, j) a b sc flag z) = pictures [scale 
 
 finishTable :: Bool -> Picture
 finishTable a |	a == False = blank
-			  | otherwise = translate 0 (-250) (pictures [color red (rectangleSolid 400 200),
-			  											  translate (-185) 0 (scale 0.3 0.3 (color white (text "CONGRATULATIONS!!!")))])
+			  | otherwise = translate 0 (-250) (scale 0.5 0.5 (pictures [color red (rectangleSolid 400 200),
+			  											  				translate (-185) 0 (scale 0.3 0.3 (color white (text "CONGRATULATIONS!!!")))]))
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------Управление действиями--------------------------------------------------
 handler (EventKey (MouseButton LeftButton) Down _ (x, y)) (Field world a b t1 t2 (i, j) ms mk sc flag z)
 		|	(checkingCoordToField x y ((fromIntegral (j * 15)::Float) * sc) ((fromIntegral (i * 15)::Float) * sc)) = (Field 
-					(puttingCellState world (i - (div (round y + (i * (round (sc / 0.066)))) (round (sc / 0.033))) - 1) (div (round x + (j * (round (sc / 0.066)))) (round (sc / 0.033))) O)
+					(puttingCellState world (i - (div (truncate y + (i * (truncate (sc / 0.06666666)))) (truncate (sc / 0.03333333))) - 1) (div (truncate x + (j * (truncate (sc / 0.06666666)))) (truncate (sc / 0.03333333))) O)
 					a b
 					t1 t2
 					(i,j)
 					ms mk sc flag z)
 handler (EventKey (MouseButton RightButton) Down _ (x, y)) (Field world a b t1 t2 (i, j) ms mk sc flag z)
 		|	(checkingCoordToField x y ((fromIntegral (j * 15)::Float) * sc) ((fromIntegral (i * 15)::Float) * sc)) = (Field 
-					(puttingCellState world (i - (div (round y + (i * (round (sc / 0.066)) )) (round (sc / 0.033))) - 1) (div (round x + (j * (round (sc / 0.066)))) (round (sc / 0.033))) X)
+					(puttingCellState world (i - (div (truncate y + (i * (truncate (sc / 0.06666666)))) (truncate (sc / 0.03333333))) - 1) (div (truncate x + (j * (truncate (sc / 0.06666666)))) (truncate (sc / 0.03333333))) X)
 					a b
 					t1 t2
 					(i,j)
@@ -257,7 +258,7 @@ special (x : xs) (y : ys) = specialLine x y : special xs ys
 specialLine :: [CellState] -> [Char] -> [CellState] 
 specialLine [] _ = []
 specialLine (x : xs) (y : ys) |	y == '#' = O : specialLine xs ys
-							  | y == '-' = No : specialLine xs ys 
+							  | y == '-' = X : specialLine xs ys 
 -------------------------------------------------------------------------------------------------------------------
 --updater не трогаем---
 updater _ (Field board table1 table2 numt1 numt2 r a b sc flag z) = (Field board table1 table2 numt1 numt2 r a b sc (checkToWin board numt1) z)
@@ -358,6 +359,5 @@ nextNestingDop1 x s ((a, b, c) : ys)
 	|	otherwise = nextNestingDop1 x s ys
 
 checkToWin :: Board -> [Automaton] -> Bool
-checkToWin [] _ = False
+checkToWin [] _ = True
 checkToWin (x : xs) (y : ys) = (&&) (checkToWinLine x y) (checkToWin xs ys) 
-
