@@ -32,6 +32,11 @@ drawCell ((x, y), c) 	|	c == No    = rect x y
 				  							, line [(x + 5, y - 5), (x - 5, y + 5)]
 				  							]
 
+drawGameOverPic :: Bool -> Float -> Float -> Picture
+drawGameOverPic flag x y |	flag == False = blank
+					 	 |	otherwise = pictures [ translate x y (color red (rectangleSolid 80 25))
+					 	 						 , translate (x - 35) (y - 7) (scale 0.1 0.1 (color white (text "Game Over")))] 
+
 createPosMatrix :: Size -> [Pos]
 createPosMatrix (i, j) = map (fromIntToFloat) (concat (map (zip [0..(j - 1)]) (map (replicate j) [0..(i - 1)])))
 
