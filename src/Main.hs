@@ -32,29 +32,33 @@ renderer Field  { board 	= board
 				, leftPanel = left
 				, topPanel  = top
 				, panelSize = (n, m)
-				, gameOver  = gameOver
+				, gameOver  = flag
 				} 
-	= pictures [translate xx yy (scale scGlob scGlob world), line[(300,0),(-300,0)],line[(0,-300),(0,300)]]
+	= translate xx yy (scale (scGlob (i, j)) (scGlob (i, j)) world)
 	where
-		world		  = pictures [boardpic, leftTopRect, miniPic, leftPic, topPic]
+		world		  = pictures [boardpic, leftTopRect, miniPic, leftPic, topPic, gameOverPic]
 		boardpic      = drawBoard board (i, j)
 		leftTopRect   = translate (x / 2) (y / 2) (rectangleWire (-x) y)
 		miniPic       = translate x y miniBoard
 		leftPic       = translate x 0 left'
 		topPic        = translate 0 y top'
+		gameOverPic   = (drawGameOverPic flag (fj * 5) (-fi * 5))
 		left'  		  = drawLeftNumPanel left (i, n)
-		top'   		  = drawTopNumPanel top (m, i)
+		top'   		  = drawTopNumPanel top (m, j)
 		miniBoard     = scale sx sy (drawBoard (oBoard board) (i, j))
 		[fn,fj,fm,fi] = intToFloat [n,j,m,i]
 		sx = fn / fj
 		sy = fm / fi
 		x  = fn * (-10.0)
 		y  = fm * 10.0
-		xx = fj * (-5.0 * scGlob)
-		yy = fi * (5.0 * scGlob)
+		xx = fj * (-5.0 * scGlob (i, j))
+		yy = fi * (5.0 * scGlob (i, j))
 
-scGlob :: Float
-scGlob = 3.0
+scGlob :: (Int, Int) -> Float
+scGlob (i, j) = 50.0 / mm
+	where
+		[mm] = intToFloat [max i j] 
+
 		
 
 --ЛЕВАЯ КНОПКА МЫШИ
@@ -68,7 +72,7 @@ handler (EventKey (MouseButton LeftButton) Down _ (x, y))
 			, panelSize   = panelSize
 			, gameOver    = gameOver
 			}
-	| and [x >= -sizeX, x <= sizeX, y >= -sizeY, y <= sizeY] 
+	| and [x > -sizeX, x < sizeX, y > -sizeY, y < sizeY] 
 		= Field { board 	  = putCellToBoard (ii, jj) board O
 				, boardSize   = (i, j)
 				, leftPanel   = left
@@ -80,10 +84,10 @@ handler (EventKey (MouseButton LeftButton) Down _ (x, y))
 				}
 		where
 			[fj, fi] = intToFloat [j, i]
-			sizeX = fj * scGlob * 5.0
-			sizeY = fi * scGlob * 5.0 
-			ii = i - truncate ((y + sizeY) / (10.0 * scGlob)) - 1
-			jj = truncate ((x + sizeX) / (10.0 * scGlob))
+			sizeX = fj * scGlob (i, j) * 5.0
+			sizeY = fi * scGlob (i, j) * 5.0 
+			ii = - truncate ((y - sizeY) / (10.0 * scGlob (i, j)))
+			jj = truncate ((x + sizeX) / (10.0 * scGlob (i, j)))
 
 --ПРАВАЯ КНОПКА МЫШИ
 handler (EventKey (MouseButton RightButton) Down _ (x, y)) 
@@ -96,7 +100,7 @@ handler (EventKey (MouseButton RightButton) Down _ (x, y))
 			, panelSize   = panelSize
 			, gameOver    = gameOver
 			}
-	| and [x >= -sizeX, x <= sizeX, y >= -sizeY, y <= sizeY] 
+	| and [x > -sizeX, x < sizeX, y > -sizeY, y < sizeY] 
 		= Field { board 	  = putCellToBoard (ii, jj) board X
 				, boardSize   = (i, j)
 				, leftPanel   = left
@@ -108,12 +112,12 @@ handler (EventKey (MouseButton RightButton) Down _ (x, y))
 				}
 		where
 			[fj, fi] = intToFloat [j, i]
-			sizeX = fj * scGlob * 5.0
-			sizeY = fi * scGlob * 5.0 
-			ii = i - truncate ((y + sizeY) / (10.0 * scGlob)) - 1
-			jj = truncate ((x + sizeX) / (10.0 * scGlob))
+			sizeX = fj * (scGlob (i, j)) * 5.0
+			sizeY = fi * (scGlob (i, j)) * 5.0 
+			ii = - truncate ((y - sizeY) / (10.0 * scGlob (i, j)))
+			jj = truncate ((x + sizeX) / (10.0 * scGlob (i, j)))
 
-handler (EventKey (Char 'i') Down _ (x, y)) 
+handler (EventKey (Char 'i') Down _ _) 
 	Field 	{ board       = board
 			, boardSize   = (i, j)
 			, leftPanel   = left
@@ -121,7 +125,7 @@ handler (EventKey (Char 'i') Down _ (x, y))
 			, leftAutomat = lAuto
 			, topAutomat  = tAuto
 			, panelSize   = panelSize
-			, gameOver    = flag
+			, gameOver    = False
 			}
 	= Field { board       = nextStepBoard
 			, boardSize   = (i, j)
@@ -144,7 +148,7 @@ handler (EventKey (Char 'j') Down _ _)
 			, leftAutomat = lAuto
 			, topAutomat  = tAuto
 			, panelSize   = panelSize
-			, gameOver    = flag
+			, gameOver    = False
 			}
 	= Field { board       = nextStepBoard
 			, boardSize   = (i, j)
@@ -167,7 +171,7 @@ handler (EventKey (Char 'g') Down _ _)
 			, leftAutomat = lAuto
 			, topAutomat  = tAuto
 			, panelSize   = panelSize
-			, gameOver    = flag
+			, gameOver    = False
 			}
 	= Field { board       = finishBoard
 			, boardSize   = (i, j)
@@ -181,6 +185,44 @@ handler (EventKey (Char 'g') Down _ _)
 	where
 		newFlag = checkToWin finishBoard lAuto
 		finishBoard = autoGen (emptyBoard i j) left top lAuto tAuto 0
+
+handler (EventKey (Char 'r') Down _ _) 
+	Field 	{ board       = board
+			, boardSize   = (i, j)
+			, leftPanel   = left
+			, topPanel    = top
+			, leftAutomat = lAuto
+			, topAutomat  = tAuto
+			, panelSize   = panelSize
+			, gameOver    = flag
+			}
+	= Field { board       = emptyBoard i j
+			, boardSize   = (i, j)
+			, leftPanel   = left
+			, topPanel    = top
+			, leftAutomat = lAuto
+			, topAutomat  = tAuto
+			, panelSize   = panelSize
+			, gameOver    = False
+			}
+			
 handler _ field = field
 
-updater _ field = field
+updater _ Field { board       = board
+				, boardSize   = (i, j)
+				, leftPanel   = left
+				, topPanel    = top
+				, leftAutomat = lAuto
+				, topAutomat  = tAuto
+				, panelSize   = panelSize
+				, gameOver    = flag
+				}
+	= Field { board       = board
+			, boardSize   = (i, j)
+			, leftPanel   = left
+			, topPanel    = top
+			, leftAutomat = lAuto
+			, topAutomat  = tAuto
+			, panelSize   = panelSize
+			, gameOver    = checkToWin board lAuto
+			}
