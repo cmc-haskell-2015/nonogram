@@ -83,3 +83,4 @@ checkToWinLine (cells, automat) = checkNewLine (map (changeNoToX) cells) automat
 changeNoToX :: Cell -> Cell
 changeNoToX x |	x == No = X
 			  | otherwise = x 
+--
