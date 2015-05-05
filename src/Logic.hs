@@ -51,7 +51,7 @@ createField contents
 
 
 emptyBoard :: Int -> Int -> Board
-emptyBoard n m = [ [ No | i <- [1..n] ] | j <- [1..m] ]
+emptyBoard n m = [ [ No | i <- [1..m] ] | j <- [1..n] ]
 
 createNumList :: [String] -> NumPanel
 createNumList x = map (delLastNull) (map (foldl (createNumListGroup) [0]) x)
@@ -110,7 +110,7 @@ putCellToBoard _ [] _ = []
 putCellToBoard (i, j) board cell 	|	findedCell == cell = myHead ++ newLineWithNo ++ myTail
 									|	otherwise =  myHead ++ newLine ++ myTail
 	where
-	myHead = take i board
+		myHead = take i board
 		myTail = drop (i + 1) board
 		findedLine = head (drop i board)
 		myHeadInLine = take j findedLine
