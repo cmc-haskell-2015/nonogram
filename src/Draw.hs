@@ -1,7 +1,7 @@
 module Draw where
 
 import Graphics.Gloss.Interface.Pure.Game
-import Logic
+import Nonogram.Logic
 
 -- | Отрисовщик левой числовой панели.
 drawLeftNumPanel :: NumPanel -> Size -> Picture

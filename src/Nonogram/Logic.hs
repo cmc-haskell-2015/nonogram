@@ -1,4 +1,7 @@
-module Logic where
+-- |
+-- Основные структуры данных и функции для работы
+-- с головоломкой «Японский кроссворд».
+module Nonogram.Logic where
 
 -- | ???
 type Size = (Int, Int)

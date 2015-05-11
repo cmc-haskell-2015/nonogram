@@ -2,8 +2,9 @@ module Main where
 
 import Graphics.Gloss.Interface.Pure.Game
 import Control.Applicative
-import Logic
-import Solver
+
+import Nonogram.Logic
+import Nonogram.Solver
 import Draw
 
 main :: IO ()
