@@ -22,7 +22,8 @@ startGame world
     	renderer              
     	handler
     	updater
---функция для отрисовки всего FIELD
+
+-- | Функция для отрисовки всего FIELD.
 renderer :: Field -> Picture
 renderer Field 	{ board 	  = board
 								, boardSize = (i, j)
@@ -51,7 +52,8 @@ renderer Field 	{ board 	  = board
 		y  						= fm * 10.0
 		xx 						= fj * (-5.0) * worldScale
 		yy 						= fi * 5.0 * worldScale
--- обрабатываются действия пользователя, в зависимости от них изменяется FIELD
+
+-- | Обрабатываются действия пользователя, в зависимости от них изменяется FIELD.
 handler :: Event -> Field -> Field
 --обработка нажатия кнопок мыши
 handler (EventKey (MouseButton mbutton) Down _ (x, y)) 
@@ -86,7 +88,8 @@ handler (EventKey (Char key) Down _ _)
 		nextStepBoardColumns = transpose (autoSolution (transpose board) top tAuto)
 		finishBoard 				 = autoGen (emptyBoard i j) left top lAuto tAuto 0
 handler _ field = field
---Обновитель мира, который каждый раз обновляет флаг конца игры GameOver
+
+-- | Обновитель мира, который каждый раз обновляет флаг конца игры GameOver.
 updater :: Float -> Field -> Field
 updater _ f@Field { board       = board
 				  				, solverAuto  = Auto { leftAutomat = lAuto }
