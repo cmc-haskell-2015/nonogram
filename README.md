@@ -13,3 +13,12 @@ $ git clone https://github.com/cmc-haskell-2015/nonogram.git
 $ cd nonogram
 $ cabal install
 ```
+
+## Запуск и использование
+
+*TBD*
+
+## Документация
+
+Документация внутреннего представления и автоматического решателя,
+сгенерированная при помощи Haddock, находится здесь: http://cmc-haskell-2015.github.io/nonogram/docs/
